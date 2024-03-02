@@ -1,18 +1,20 @@
 import pandas as pd
 import numpy as np
 import re 
+from sklearn.pipeline import Pipeline
+from sklearn.svm import LinearSVC
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import TfidfTransformer,TfidfVectorizer,CountVectorizer
+from sklearn.metrics import accuracy_score,ConfusionMatrixDisplay,classification_report
+from sklearn.linear_model import LogisticRegression
+import joblib
 
 
 # Reading Data
-df=pd.read_csv('C:/Users/nevta/Desktop/NLP Sentimental/NLP-Sentiment-Analysis/train.csv',encoding='latin1')
-
-df_test=pd.read_csv('C:/Users/nevta/Desktop/NLP Sentimental/NLP-Sentiment-Analysis/test.csv',encoding='latin1')
-
-
+df=pd.read_csv('train.csv',encoding='latin1')
+df_test=pd.read_csv('test.csv',encoding='latin1')
 df_=df.copy()
-
 df_test_=df_test.copy()
-
 df.info()
 
 # Data Cleaning
@@ -20,13 +22,13 @@ df.isna().sum();
 
 df=df.dropna(axis=0) # Text was null, so it not usefull data. Drop it.
 
-# df_test.isna().sum();
+df_test.isna().sum();
 
 
-# df=df.dropna(how='all',axis=0);
+df=df.dropna(how='all',axis=0);
 
-# df_test=df_test.dropna(how='all',axis=0);
-# ### Some Rows are completely null.
+df_test=df_test.dropna(how='all',axis=0);
+ # # # # # #Some Rows are completely null.
 
 
 def text_clean(text):
@@ -59,28 +61,77 @@ for country in df['Country'].unique():
 
 ### country_mistake it is an empthy, so it is good. We looked whether there is a diverstiy for the certain data.
 
-        
+
     
 # Machine Learning Sentiment Analysis
-
+# # Test and Train data
 X_train=df['text']
 y_train=df['sentiment']
 
 X_test=df_test['text']
 y_test=df_test['sentiment']
 
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer,TfidfVectorizer,CountVectorizer
 
 
- cv=CountVectorizer(stop_words='english'
-                    )
+# Model Selection 
 
-tfidf_transformer = TfidfTransformer()
+# # # LinearSVC()
+
+pipe=Pipeline([('tfidf',TfidfVectorizer(stop_words='english')),('svc',LinearSVC())]) 
+
+pipe.fit(X_train,y_train)
+
+pred_Linear=pipe.predict(X_test)
 
 
 
+print(classification_report(y_test,pred_Linear))
+print(accuracy_score(y_test,pred_Linear))
 
 
 
+# # # Naive Bayes()
 
+
+
+pipe_NB=Pipeline([('tfidf',TfidfVectorizer(stop_words='english')),('nb',MultinomialNB())]) 
+
+pipe_NB.fit(X_train,y_train)
+
+y_predict=pipe_NB.predict(X_test)
+
+
+print(classification_report(y_test,y_predict))
+print(accuracy_score(y_test,y_predict))
+
+# # # Logistic Regression
+pipe_lr=Pipeline([('tfidf',TfidfVectorizer(stop_words='english')),('lr', LogisticRegression(max_iter=1000))]) 
+
+pipe_lr.fit(X_train,y_train)
+
+y_predict_lr=pipe_lr.predict(X_test)
+
+
+print(classification_report(y_test,y_predict_lr))
+print(accuracy_score(y_test,y_predict_lr))
+# # # Hence LogisticRegression is the best algorithm for the projet
+
+
+# Load model
+
+joblib.dump(pipe_lr,'final_model.pkl')
+
+
+test=joblib.load('final_model.pkl')
+
+test
+
+prediction = test.predict(['It is awesome'])
+
+print(prediction)
+
+# For the analysis, I will extract data.
+
+df_=df_.dropna()
+
+df_.to_csv('Cleaned.csv')
