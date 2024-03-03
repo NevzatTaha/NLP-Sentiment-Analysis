@@ -27,7 +27,7 @@ df_test.isna().sum();
 df=df.dropna(how='all',axis=0);
 
 df_test=df_test.dropna(how='all',axis=0);
- # # # # # #Some Rows are completely null.
+ # # # # # #Some Rows are completely null
 
 
 def text_clean(text):
