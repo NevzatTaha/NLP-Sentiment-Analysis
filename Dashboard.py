@@ -28,10 +28,10 @@ number_of_tweets = df.groupby('Country').size().reset_index(name='Number of Twee
 df = pd.merge(df, number_of_tweets, on='Country')
 
 
-nlp=joblib.load('final_model.pkl')
+nlp=joblib.load('finalmodel.pkl')
 
              
-
+s
 
 # Deployement
 
