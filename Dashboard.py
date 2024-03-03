@@ -44,19 +44,20 @@ sidebar=st.sidebar.selectbox(label="Content",options=("Main Page","Country Infor
 
 
 if sidebar=="Model Predicton":
-       st.subheader("Our model gives 70% accuracy. It gives whether your tweets are positive, neutral or false.")
-       text=st.text_area("Your tweet")
+       st.subheader("The model purposed to understand sentiment of the tweets. It gives whether your tweets are positive, neutral or negative.")
+       text=st.text_area("Please write a tweet that you want to learn its sentiment 🤗")
        result=nlp.predict([text])
-       if result=='positive':
-              st.write("This is a positive tweet :sunglasses:")
-       elif result=='neutral':
-              st.write("neutral")
-       elif result=='negative':
-              st.write('negative')
+       if st.button("Lets Predict🤗") and len(text)>1:
+              if result=='positive':
+                     st.write("This is a positive tweet :sunglasses:")
+              elif result=='neutral':
+                     st.write("This is a  neutral tweet 😐")
+              elif result=='negative':
+                     st.write("This is a negative tweet 😕")
+              else:
+                     st.write('There is a mistake') 
        else:
-              st.write('There is a mistake') 
-       
-              
+              st.subheader("Please write a tweet.")
 elif sidebar == "Main Page":
     st.subheader('Dataframe')
     st.write(df[['text', 'sentiment',
