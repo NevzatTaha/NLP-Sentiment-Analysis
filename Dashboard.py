@@ -28,7 +28,7 @@ number_of_tweets = df.groupby('Country').size().reset_index(name='Number of Twee
 df = pd.merge(df, number_of_tweets, on='Country')
 
 
-
+nlp=joblib.load('final_model.pkl')
 
              
 
@@ -46,7 +46,6 @@ sidebar=st.sidebar.selectbox(label="Content",options=("Main Page","Country Infor
 if sidebar=="Model Predicton":
        st.subheader("Our model gives 70% accuracy. It gives whether your tweets are positive, neutral or false.")
        text=st.text_area("Your tweet")
-       nlp=joblib.load('final_model.pkl')
        result=nlp.predict([text])
        if result=='positive':
               st.write("This is a positive tweet :sunglasses:")
