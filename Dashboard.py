@@ -31,7 +31,7 @@ df = pd.merge(df, number_of_tweets, on='Country')
 nlp=joblib.load('finalmodel.pkl')
 
              
-s
+
 
 # Deployement
 
