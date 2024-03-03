@@ -5,7 +5,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import TfidfTransformer,TfidfVectorizer,CountVectorizer
-from klearn.metrics import accuracy_score,ConfusionMatrixDisplay,classification_report
 from sklearn.linear_model import LogisticRegression
 import joblib
 
