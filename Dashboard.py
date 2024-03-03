@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import re 
-from sklearn.metrics import accuracy_score,ConfusionMatrixDisplay,classification_report
 import joblib
 import streamlit as st
 import plotly.express as px
