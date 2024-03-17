@@ -8,6 +8,9 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import TfidfTransformer,TfidfVectorizer,CountVectorizer
 from sklearn.linear_model import LogisticRegression
 import joblib
+import nltk
+from nltk.stem import SnowballStemmer
+
 
 
 # Reading Data
@@ -61,6 +64,28 @@ for country in df['Country'].unique():
 
 ### country_mistake it is an empthy, so it is good. We looked whether there is a diverstiy for the certain data.
 
+#Stemming
+nltk.download('punkt')  # Ensure you have punkt tokenizer downloaded
+stemmer = SnowballStemmer(language='english')
+def tokenizaton_stemming(text):
+     tokenization=nltk.word_tokenize(text)
+     stemming=  [stemmer.stem(tokens)  for tokens in tokenization]
+     return stemming
+
+
+#  I will extract words frequency
+
+stemmed=tokenizaton_stemming()
+
+cv = CountVectorizer()   
+cv_fit = cv.fit_transform(stemmed)    
+word_list = cv.get_feature_names() 
+count_list = cv_fit.toarray().sum(axis=0)
+
+print (dict(zip(word_list,count_list)))
+
+
+     
 
     
 # Machine Learning Sentiment Analysis
@@ -76,8 +101,9 @@ y_test=df_test['sentiment']
 # Model Selection 
 
 # # # LinearSVC()
+pipe=Pipeline([('tfidf',TfidfVectorizer(stop_words='english',tokenizer=tokenizaton_stemming)),('svc',LinearSVC())]) 
 
-pipe=Pipeline([('tfidf',TfidfVectorizer(stop_words='english')),('svc',LinearSVC())]) 
+TfidfVectorizer.to_dense()
 
 pipe.fit(X_train,y_train)
 
@@ -86,15 +112,14 @@ pred_Linear=pipe.predict(X_test)
 
 
 print(classification_report(y_test,pred_Linear))
-print(accuracy_score(y_test,pred_Linear))
-
+print("Naive Bayes Report:",accuracy_score(y_test,pred_Linear))
 
 
 # # # Naive Bayes()
 
 
 
-pipe_NB=Pipeline([('tfidf',TfidfVectorizer(stop_words='english')),('nb',MultinomialNB())]) 
+pipe_NB=Pipeline([('tfidf',TfidfVectorizer(stop_words='english',tokenizer=tokenizaton_stemming)),('nb',MultinomialNB())]) 
 
 pipe_NB.fit(X_train,y_train)
 
@@ -102,19 +127,29 @@ y_predict=pipe_NB.predict(X_test)
 
 
 print(classification_report(y_test,y_predict))
-print(accuracy_score(y_test,y_predict))
+print("Naive Bayes Report:",accuracy_score(y_test,y_predict))
 
 # # # Logistic Regression
-pipe_lr=Pipeline([('tfidf',TfidfVectorizer(stop_words='english')),('lr', LogisticRegression(max_iter=1000))]) 
+pipe_lr=Pipeline([('tfidf',TfidfVectorizer(stop_words='english',tokenizer=tokenizaton_stemming)),('lr', LogisticRegression(max_iter=1000))]) 
 
 pipe_lr.fit(X_train,y_train)
 
 y_predict_lr=pipe_lr.predict(X_test)
 
 
-print(classification_report(y_test,y_predict_lr))
-print(accuracy_score(y_test,y_predict_lr))
+print("Logistic Regression Report:",classification_report(y_test,y_predict_lr))
+print("Logistic Regression Report:,"accuracy_score(y_test,y_predict_lr))
 # # # Hence LogisticRegression is the best algorithm for the projet
+
+# Measuring best 20 words
+
+Vector=TfidfVectorizer(stop_words='english',tokenizer=tokenizaton_stemming)
+
+Vector.todense()
+
+
+
+
 
 
 # Load model
@@ -122,7 +157,7 @@ print(accuracy_score(y_test,y_predict_lr))
 joblib.dump(pipe_lr,'finalmodel.pkl')
 
 
-test=joblib.load('final_model.pkl')
+test=joblib.load('finalmodel.pkl')
 
 test
 
