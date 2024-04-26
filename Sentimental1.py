@@ -12,7 +12,6 @@ from sklearn.linear_model import LogisticRegression
 import joblib
 import nltk
 from nltk.stem import SnowballStemmer
-from sklearn.model_selection import GridSearchCV
 
 
 pd.set_option('display.max_columns', None)
@@ -122,7 +121,7 @@ models={LinearSVC():'svc',LogisticRegression(max_iter=1000):'lr',MultinomialNB()
 
 def model_selection(expected_model):
  # Please import expected model before the run the function
-          for model,shortcuts in expected_model.items():
+     for model,shortcuts in expected_model.items():
           pipe=Pipeline([('tfidf',TfidfVectorizer(stop_words='english',tokenizer=tokenizaton_stemming)),(shortcuts,model)])
           pipe.fit(X_train,y_train)
           y_predict=pipe.predict(X_test)
@@ -132,39 +131,15 @@ def model_selection(expected_model):
 model_selection(models)
 
 # LogisticRegression has the most accuracy.Now lets set the hyperparameters
-tfidf=TfidfVectorizer(stop_words='english',tokenizer=tokenizaton_stemming)
+pipe_lr=Pipeline([('tfidf',TfidfVectorizer(stop_words='english',tokenizer=tokenizaton_stemming)),('lr', LogisticRegression(max_iter=10000,class_weight='balanced',C=1))]) 
 
-X_train_tfidf=tfidf.fit_transform(X_train)
-X_test_tfidf=tfidf.transform(X_test)
+pipe_lr.fit(X_train,y_train)
 
-
-# HyperParameters
-
-c=np.logspace(0,4,20)
-logistic_model=LogisticRegression(penalty='l2',class_weight='balanced',max_iter=10000)
-
-grid_model=GridSearchCV(logistic_model,param_grid={'C':c})
-
-grid_model.fit(X_train_tfidf,y_train)
-
-print('xzcv')
+y_predict_lr=pipe_lr.predict(X_test)
 
 
-grid_model.best_params_
-
-
-
-
-
-          
-          
-          
-   
-
-
-
-     
-
+print(classification_report(y_test,y_predict_lr))
+print(accuracy_score(y_test,y_predict_lr))
 
 
 
@@ -175,14 +150,16 @@ grid_model.best_params_
 
 # Load model
 
-joblib.dump(pipe_,'finalmodel.pkl')
+joblib.dump(
+pipe_lr,'finalmodel.pkl')
 
 
-test=joblib.load('finalmodel.pkl')
 
-test
 
-prediction = test.predict(['It is awesome'])
+# Test
+model = joblib.load('finalmodel.pkl')
+# Now, you can use the loaded model for prediction
+prediction = model.predict(['It is awesome'])
 
 print(prediction)
 
