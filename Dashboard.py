@@ -40,7 +40,7 @@ st.title("Data Science - :red[Sentiment Analysis] :sunglasses:") # Head of the W
 
 
 
-sidebar=st.sidebar.selectbox(label="Content",options=("Main Page","Country Information","Age Information","Model Predicton"))
+sidebar=st.sidebar.selectbox(label="Content",options=("Main Page","Country Information","Age Information","Model Prediction"))
 
 
 if sidebar=="Model Predicton":
