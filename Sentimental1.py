@@ -149,9 +149,7 @@ print(accuracy_score(y_test,y_predict_lr))
 
 
 # Load model
-
-joblib.dump(
-pipe_lr,'finalmodel.pkl')
+joblib.dump(pipe_lr,'finalmodel.pkl')
 
 
 
