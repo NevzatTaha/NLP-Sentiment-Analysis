@@ -6,7 +6,27 @@ import streamlit as st
 import plotly.express as px
 import pycountry
 import seaborn as sns
+import nltk
 import matplotlib.pyplot as plt
+from nltk.stem import SnowballStemmer
+
+
+nltk.download('punkt')  # Ensure you have punkt tokenizer downloaded
+stemmer = SnowballStemmer(language='english')
+def tokenizaton_stemming(text):
+     tokenization=nltk.word_tokenize(text)
+     stemming=  [stemmer.stem(tokens)  for tokens in tokenization]
+     return stemming
+
+
+def frequency_of_words(labels, number_of_words=20, tokenize=None):
+    for label in labels:
+        cv = CountVectorizer(stop_words='english', tokenizer=tokenize)
+        matrix = cv.fit_transform(df[df['sentiment'] == label]['text'])
+        freqs = zip(cv.get_feature_names_out(), matrix.sum(axis=0).tolist()[0])
+        # sort from largest to smallest
+        print(f"Top {number_of_words} words used for {label} reviews.")
+        print(sorted(freqs, key=lambda x: -x[1])[:number_of_words])
 
 
 # Data Cleaning
@@ -27,8 +47,18 @@ number_of_tweets = df.groupby('Country').size().reset_index(name='Number of Twee
 
 df = pd.merge(df, number_of_tweets, on='Country')
 
+# For the Word Cloud
+from wordcloud import WordCloud
 
-nlp=joblib.load('finalmodel.pkl')
+frequency_of_words(['positive', 'negative', 'neutral'], tokenize=tokenizaton_stemming)
+
+
+
+nlp= joblib.load('finalmodel.pkl')
+  
+
+
+
 
              
 
@@ -40,7 +70,7 @@ st.title("Data Science - :red[Sentiment Analysis] :sunglasses:") # Head of the W
 
 
 
-sidebar=st.sidebar.selectbox(label="Content",options=("Main Page","Country Information","Age Information","Model Predicton"))
+sidebar=st.sidebar.selectbox(label="Content",options=("Model Predicton","Data Frame","Age Information"))
 
 
 if sidebar=="Model Predicton":
@@ -58,16 +88,16 @@ if sidebar=="Model Predicton":
                      st.write('There is a mistake') 
        else:
               st.subheader("Please write a tweet.")
-elif sidebar == "Main Page":
+elif sidebar == "Data Frame":
     st.subheader('Dataframe')
     st.write(df[['text', 'sentiment',
        'Time of Tweet', 'Age of User', 'Country', 'Population -2020',
        'Land Area (KmÂ²)', 'Density (P/KmÂ²)']])
-elif sidebar == "Country Information":
-       st.subheader('This is world map that shows number of tweets and the size of the countries.')
-       earth_map = px.scatter_geo(data_frame=df, locations='ISO_alpha',color="Land Area (KmÂ²)",hover_name='Country', size="Number of Tweets", projection="natural earth")
-       earth_map.update_layout(width=1000)
-       st.plotly_chart(earth_map)
+# elif sidebar == "Country Information":
+#        st.subheader('This is world map that shows number of tweets and the size of the countries.')
+#        earth_map = px.scatter_geo(data_frame=df, locations='ISO_alpha',color="Land Area (KmÂ²)",hover_name='Country', size="Number of Tweets", projection="natural earth")
+#        earth_map.update_layout(width=1000)
+#        st.plotly_chart(earth_map)
 elif sidebar=="Age Information":
        fig = px.histogram(df, x="Age of User", color="sentiment", barmode="group", histfunc="count", 
                        category_orders={"sentiment": ["positive", "neutral", "negative"]}, 
