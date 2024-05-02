@@ -9,6 +9,8 @@ import seaborn as sns
 import nltk
 import matplotlib.pyplot as plt
 from nltk.stem import SnowballStemmer
+from sklearn.feature_extraction.text import TfidfTransformer,TfidfVectorizer,CountVectorizer
+
 
 
 nltk.download('punkt')  # Ensure you have punkt tokenizer downloaded
@@ -20,13 +22,17 @@ def tokenizaton_stemming(text):
 
 
 def frequency_of_words(labels, number_of_words=20, tokenize=None):
+    frequencies = {}
     for label in labels:
         cv = CountVectorizer(stop_words='english', tokenizer=tokenize)
         matrix = cv.fit_transform(df[df['sentiment'] == label]['text'])
         freqs = zip(cv.get_feature_names_out(), matrix.sum(axis=0).tolist()[0])
         # sort from largest to smallest
-        print(f"Top {number_of_words} words used for {label} reviews.")
-        print(sorted(freqs, key=lambda x: -x[1])[:number_of_words])
+        frequencies[label] = sorted(freqs, key=lambda x: -x[1])[:number_of_words]
+
+    return frequencies
+
+
 
 
 # Data Cleaning
@@ -49,9 +55,10 @@ df = pd.merge(df, number_of_tweets, on='Country')
 
 # For the Word Cloud
 from wordcloud import WordCloud
-
-frequency_of_words(['positive', 'negative', 'neutral'], tokenize=tokenizaton_stemming)
-
+word_frequencies=frequency_of_words(['positive', 'negative', 'neutral'], tokenize=tokenizaton_stemming)
+positive_frequencies = word_frequencies.get('positive', [])
+neutral_frequencies=word_frequencies.get('neutral', [])
+negative_frequencies=word_frequencies.get('negative', [])
 
 
 nlp= joblib.load('finalmodel.pkl')
@@ -70,7 +77,7 @@ st.title("Data Science - :red[Sentiment Analysis] :sunglasses:") # Head of the W
 
 
 
-sidebar=st.sidebar.selectbox(label="Content",options=("Model Predicton","Data Frame","Age Information"))
+sidebar=st.sidebar.selectbox(label="Content",options=("Model Predicton","Data Frame","Age Information","WordCloud"))
 
 
 if sidebar=="Model Predicton":
@@ -105,7 +112,16 @@ elif sidebar=="Age Information":
        fig.update_layout(width=1000)
        # st.pyplot(barplot2.figure)
        st.plotly_chart(fig)
-       st.write("In every age of user , there are similar patters because of good distributed training data.")      
+       st.write("In every age of user , there are similar patters because of good distributed training data.") 
+elif sidebar=="WordCloud":# Generate WordCloud
+              wordcloud_positive = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(dict(positive_frequencies))
+              wordcloud_neutral = WordCloud(width=800, height=400, background_color='black').generate_from_frequencies(dict(neutral_frequencies))
+              wordcloud_negative = WordCloud(width=800, height=400, background_color='yellow').generate_from_frequencies(dict(negative_frequencies))
+              fig,ax=plt.subplots(nrows=(3),figsize=(7,10))
+               # Plot the WordCloud
+              st.image(wordcloud_positive.to_array(), caption='Word Cloud for Positive Reviews',use_column_width=True)
+              st.image(wordcloud_neutral.to_array(), caption='# Word Cloud for Neutral Reviews',use_column_width=True)
+              st.image(wordcloud_negative.to_array(), caption='# Word Cloud for Negative Reviews',use_column_width=True)
         
 
               
