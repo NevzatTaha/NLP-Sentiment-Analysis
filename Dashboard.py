@@ -10,6 +10,8 @@ import nltk
 import matplotlib.pyplot as plt
 from nltk.stem import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfTransformer,TfidfVectorizer,CountVectorizer
+import time
+
 
 
 
@@ -21,11 +23,12 @@ def tokenizaton_stemming(text):
      return stemming
 
 
+
 def frequency_of_words(labels, number_of_words=20, tokenize=None):
     frequencies = {}
     for label in labels:
         cv = CountVectorizer(stop_words='english', tokenizer=tokenize)
-        matrix = cv.fit_transform(df[df['sentiment'] == label]['text'])
+        matrix = cv.fit_transform(df[df['sentiment'] == label]['text'].values.astype('U'))
         freqs = zip(cv.get_feature_names_out(), matrix.sum(axis=0).tolist()[0])
         # sort from largest to smallest
         frequencies[label] = sorted(freqs, key=lambda x: -x[1])[:number_of_words]
@@ -72,19 +75,24 @@ nlp= joblib.load('finalmodel.pkl')
 
 # Deployement
 
-st.set_page_config( page_title="Sentiment Analysis and Dashbord", page_icon="🤗",layout="wide")
-st.title("Data Science - :red[Sentiment Analysis] :sunglasses:") # Head of the Website and its title
+st.set_page_config( page_title="Sentiment Analysis and WordCloud", page_icon="🤗",layout="wide")
+st.title("NLP - Sentiment Analysis :sunglasses:") # Head of the Website and its title
 
 
+with st.sidebar:
+       st.title('X Tweets Sentiment Analysis ☁️')
 
-sidebar=st.sidebar.selectbox(label="Content",options=("Model Predicton","Data Frame","Age Information","WordCloud"))
+
+sidebar=st.sidebar.selectbox(label='',options=("Model Predicton","Data Frame","WordCloud"))
 
 
 if sidebar=="Model Predicton":
-       st.subheader("The model purposed to understand sentiment of the tweets. It gives whether your tweets are positive, neutral or negative.")
        text=st.text_area("Please write a tweet that you want to learn its sentiment 🤗")
        result=nlp.predict([text])
        if st.button("Lets Predict🤗") and len(text)>1:
+              result_placeholder = st.empty()
+              result_placeholder.write("Predicting...")
+              time.sleep(3)
               if result=='positive':
                      st.write("This is a positive tweet :sunglasses:")
               elif result=='neutral':
@@ -93,8 +101,13 @@ if sidebar=="Model Predicton":
                      st.write("This is a negative tweet 😕")
               else:
                      st.write('There is a mistake') 
-       else:
-              st.subheader("Please write a tweet.")
+       
+       with st.expander('About', expanded=True):
+        st.write('''
+            - :orange[**Linkedn**]: https://www.linkedin.com/in/nevzatayhan/.
+            - :orange[**GitHub**]: https://github.com/NevzatTaha
+            - For any cooperation or suggestion Email: Nevtahaayhan@gmail.com
+            ''')
 elif sidebar == "Data Frame":
     st.subheader('Dataframe')
     st.write(df[['text', 'sentiment',
@@ -105,23 +118,19 @@ elif sidebar == "Data Frame":
 #        earth_map = px.scatter_geo(data_frame=df, locations='ISO_alpha',color="Land Area (KmÂ²)",hover_name='Country', size="Number of Tweets", projection="natural earth")
 #        earth_map.update_layout(width=1000)
 #        st.plotly_chart(earth_map)
-elif sidebar=="Age Information":
-       fig = px.histogram(df, x="Age of User", color="sentiment", barmode="group", histfunc="count", 
-                       category_orders={"sentiment": ["positive", "neutral", "negative"]}, 
-                       color_discrete_sequence=px.colors.qualitative.Set2)
-       fig.update_layout(width=1000)
-       # st.pyplot(barplot2.figure)
-       st.plotly_chart(fig)
-       st.write("In every age of user , there are similar patters because of good distributed training data.") 
 elif sidebar=="WordCloud":# Generate WordCloud
-              wordcloud_positive = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(dict(positive_frequencies))
-              wordcloud_neutral = WordCloud(width=800, height=400, background_color='black').generate_from_frequencies(dict(neutral_frequencies))
-              wordcloud_negative = WordCloud(width=800, height=400, background_color='yellow').generate_from_frequencies(dict(negative_frequencies))
+              wordcloud_positive = WordCloud(width=800, height=400, background_color='white',stopwords="english").generate_from_frequencies(dict(positive_frequencies))
+              wordcloud_neutral = WordCloud(width=800, height=400, background_color='white',stopwords="english").generate_from_frequencies(dict(neutral_frequencies))
+              wordcloud_negative = WordCloud(width=800, height=400, background_color='white',stopwords="english").generate_from_frequencies(dict(negative_frequencies))
+
               fig,ax=plt.subplots(nrows=(3),figsize=(7,10))
                # Plot the WordCloud
               st.image(wordcloud_positive.to_array(), caption='Word Cloud for Positive Reviews',use_column_width=True)
-              st.image(wordcloud_neutral.to_array(), caption='# Word Cloud for Neutral Reviews',use_column_width=True)
-              st.image(wordcloud_negative.to_array(), caption='# Word Cloud for Negative Reviews',use_column_width=True)
+
+              st.image(wordcloud_neutral.to_array(), caption='#Word Cloud for Neutral Reviews',use_column_width=True)
+
+              st.image(wordcloud_negative.to_array(), caption=' Word Cloud for Negative Reviews',use_column_width=True)
+
         
 
               

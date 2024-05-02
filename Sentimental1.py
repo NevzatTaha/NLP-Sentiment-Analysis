@@ -163,7 +163,10 @@ print(prediction)
 
 
 
+# For the analysis, I will extract data.
+df=df.dropna()
 
+df.to_csv('Cleaned.csv')
 
 
 
