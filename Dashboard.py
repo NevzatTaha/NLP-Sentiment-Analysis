@@ -76,7 +76,7 @@ nlp= joblib.load('finalmodel.pkl')
 # Deployement
 
 st.set_page_config( page_title="Sentiment Analysis and WordCloud", page_icon="🤗",layout="wide")
-st.title("NLP - Sentiment Analysis :sunglasses:") # Head of the Website and its title
+st.title("NLP - Sentiment Analysis ☁️☁️") # Head of the Website and its title
 
 
 with st.sidebar:
@@ -90,9 +90,6 @@ if sidebar=="Model Predicton":
        text=st.text_area("Please write a tweet that you want to learn its sentiment 🤗")
        result=nlp.predict([text])
        if st.button("Lets Predict🤗") and len(text)>1:
-              result_placeholder = st.empty()
-              result_placeholder.write("Predicting...")
-              time.sleep(3)
               if result=='positive':
                      st.write("This is a positive tweet :sunglasses:")
               elif result=='neutral':
@@ -101,35 +98,42 @@ if sidebar=="Model Predicton":
                      st.write("This is a negative tweet 😕")
               else:
                      st.write('There is a mistake') 
+              st.success('Congrats!! you have just learned your tweets sentiment and it is {results} tweet'.format(results=result))
        
        with st.expander('About', expanded=True):
         st.write('''
             - :orange[**Linkedn**]: https://www.linkedin.com/in/nevzatayhan/.
             - :orange[**GitHub**]: https://github.com/NevzatTaha
-            - For any cooperation or suggestion Email: Nevtahaayhan@gmail.com
+            - For any cooperations or suggestions please send an Email: Nevtahaayhan@gmail.com
             ''')
 elif sidebar == "Data Frame":
     st.subheader('Dataframe')
     st.write(df[['text', 'sentiment',
        'Time of Tweet', 'Age of User', 'Country', 'Population -2020',
        'Land Area (KmÂ²)', 'Density (P/KmÂ²)']])
+    with st.expander('Details',expanded=True ):
+           st.write('''
+                    - :orange[**Resource of the Project**]: https://www.kaggle.com/datasets/abhi8923shriv/sentiment-analysis-dataset/data)
+                    ''')
 # elif sidebar == "Country Information":
 #        st.subheader('This is world map that shows number of tweets and the size of the countries.')
 #        earth_map = px.scatter_geo(data_frame=df, locations='ISO_alpha',color="Land Area (KmÂ²)",hover_name='Country', size="Number of Tweets", projection="natural earth")
 #        earth_map.update_layout(width=1000)
 #        st.plotly_chart(earth_map)
+
 elif sidebar=="WordCloud":# Generate WordCloud
-              wordcloud_positive = WordCloud(width=800, height=400, background_color='white',stopwords="english").generate_from_frequencies(dict(positive_frequencies))
-              wordcloud_neutral = WordCloud(width=800, height=400, background_color='white',stopwords="english").generate_from_frequencies(dict(neutral_frequencies))
-              wordcloud_negative = WordCloud(width=800, height=400, background_color='white',stopwords="english").generate_from_frequencies(dict(negative_frequencies))
+              st.subheader("These are words cloud that explains which words are most used for the specific labels.")
+              wordcloud_positive = WordCloud(width=600, height=400, background_color='white',stopwords="english").generate_from_frequencies(dict(positive_frequencies))
+              wordcloud_neutral = WordCloud(width=600, height=400, background_color='white',stopwords="english").generate_from_frequencies(dict(neutral_frequencies))
+              wordcloud_negative = WordCloud(width=600, height=400, background_color='white',colormap= 'cool',stopwords="english").generate_from_frequencies(dict(negative_frequencies))
 
               fig,ax=plt.subplots(nrows=(3),figsize=(7,10))
                # Plot the WordCloud
-              st.image(wordcloud_positive.to_array(), caption='Word Cloud for Positive Reviews',use_column_width=True)
+              st.image(wordcloud_positive.to_array(), caption='Word Cloud for Positive Reviews')
 
-              st.image(wordcloud_neutral.to_array(), caption='#Word Cloud for Neutral Reviews',use_column_width=True)
+              st.image(wordcloud_neutral.to_array(), caption='#Word Cloud for Neutral Reviews')
 
-              st.image(wordcloud_negative.to_array(), caption=' Word Cloud for Negative Reviews',use_column_width=True)
+              st.image(wordcloud_negative.to_array(), caption=' Word Cloud for Negative Reviews')
 
         
 
