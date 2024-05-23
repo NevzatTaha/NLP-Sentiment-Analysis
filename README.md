@@ -34,6 +34,10 @@ I designed simple and understandable pages for users. There are three different 
 
 ![image](https://github.com/NevzatTaha/NLP-Sentiment-Analysis/assets/108625825/d959c9da-256e-4ecd-9b0a-c5da2193a4bf)
 
+### Web Application 
+https://dashboardpy-fedqetb5ndpdftthv6uxu2.streamlit.app
+
+
 
 
 
